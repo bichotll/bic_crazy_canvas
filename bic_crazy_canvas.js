@@ -47,16 +47,15 @@
             // and user-provided options (if any)
             plugin.settings = $.extend({}, defaults, options)
 
-            // code goes here
+
             plugin.insert_pisarra();
 
-            plugin.asignar_mides_pisarra();
-
-            plugin.print_line_click();
+            //plugin.print_line_click();
 
             //test event click pisarra
             $('body').click( function(){
                 plugin.print_line_click();
+                plugin.guardar_canvas();
             } );
 
             //KO...
@@ -65,10 +64,11 @@
                 alert('moviment');
             } );
 
+            //KO
             //a la sortida guardem el canvas
-            $( window ).bind( 'beforeunload', function() {
+            /*$( window ).bind( 'beforeunload', function() {
                plugin.guardar_canvas();
-            } );
+            } );*/
  
         }
  
@@ -80,19 +80,28 @@
         // is the element the plugin is attached to;
 
         plugin.insert_pisarra = function(){
-            /*if ( sessionStorage.getItem("pisarra") != '' ){
-                $(defaults.element_insert).prepend( sessionStorage.getItem("pisarra") );
-            } else {*/
-                $(defaults.element_insert).prepend(defaults.element_pisarra);
-            //}
-        }
+            $(defaults.element_insert).prepend(defaults.element_pisarra);
 
-        plugin.asignar_guix = function(){
             defaults.guix = $('#pisarra')[0].getContext('2d');
+
+            plugin.asignar_mides_pisarra();
+
+            if ( sessionStorage.getItem("pisarra") != '' ){
+                //asignem dataurl a un objecte imatge
+                var img = new Image;
+                img.src = sessionStorage.getItem("pisarra");
+                
+
+                defaults.guix.beginPath();
+                defaults.guix.drawImage(img,0,0);
+                defaults.guix.stroke();
+
+                alert(sessionStorage.getItem('pisarra'));
+            }
         }
 
         plugin.guardar_canvas = function(){
-            sessionStorage.setItem("pisarra", $('#pisarra'));
+            sessionStorage.setItem("pisarra", $('#pisarra')[0].toDataURL());
         }
 
         plugin.asignar_mides_pisarra = function(){
@@ -100,9 +109,7 @@
             if( typeof( window.innerWidth ) == 'number' ) {
                 //Non-IE
                 pisarra_X = window.innerWidth;
-                //pisarra_X = document.body.clientWidth;
                 pisarra_Y = window.innerHeight;
-                //pisarra_Y = document.body.clientHeight;
             } else if( document.documentElement && ( document.documentElement.clientWidth || document.documentElement.clientHeight ) ) {
                 //IE 6+ in 'standards compliant mode'
                 pisarra_X = document.documentElement.clientWidth;
@@ -121,7 +128,6 @@
         }
 
         plugin.print_line_click = function(){
-            plugin.asignar_guix();
 
             var color = '#'+Math.floor(Math.random()*16777215).toString(16);
             var pos_A = Math.random()*pisarra_X;
@@ -153,7 +159,6 @@
                 var pos_D = Math.random()*pisarra_Y;
             }
 
-
             defaults.guix.beginPath();
             defaults.guix.moveTo(pos_A,pos_B);
             defaults.guix.lineTo(pos_C,pos_D);
@@ -164,13 +169,7 @@
         // private methods
         // these methods can be called only from inside the plugin like:
         // methodName(arg1, arg2, ... argn)
- 
-        // a private method. for demonstration purposes only - remove it!
-        var foo_private_method = function() {
- 
-            // code goes here
- 
-        }
+
  
         // fire up the plugin!
         // call the "constructor" method
