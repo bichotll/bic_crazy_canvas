@@ -9,7 +9,7 @@
         var defaults = {
  
             element_insert: 'body',
-            element_pisarra: $('<canvas id="pisarra" style="position: absolute;"  >YES, IE SUCKS</canvas>'),
+            element_pisarra: $('<canvas id="pisarra" style="position: fixed; float:left"  >YES, IE SUCKS</canvas>'),
             guix: null,
  
             // if your plugin is event-driven, you may provide
@@ -20,6 +20,9 @@
             onFoo: function() {}
  
         }
+
+        //mides pisarra
+        var pisarra_X, pisarra_Y;
  
         // to avoid confusions, use "plugin" to reference the current
         // instance of the object
@@ -49,11 +52,11 @@
 
             plugin.asignar_mides_pisarra();
 
-            plugin.print_line();
+            plugin.print_line_click();
 
             //test event click pisarra
-            $('#pisarra').click( function(){
-                alert(0);
+            $('body').click( function(){
+                plugin.print_line_click();
             } );
 
             //KO...
@@ -62,7 +65,10 @@
                 alert('moviment');
             } );
 
-            alert(true);
+            //a la sortida guardem el canvas
+            $( window ).bind( 'beforeunload', function() {
+               plugin.guardar_canvas();
+            } );
  
         }
  
@@ -74,55 +80,84 @@
         // is the element the plugin is attached to;
 
         plugin.insert_pisarra = function(){
-            $(defaults.element_insert).prepend(defaults.element_pisarra);
+            /*if ( sessionStorage.getItem("pisarra") != '' ){
+                $(defaults.element_insert).prepend( sessionStorage.getItem("pisarra") );
+            } else {*/
+                $(defaults.element_insert).prepend(defaults.element_pisarra);
+            //}
         }
 
         plugin.asignar_guix = function(){
             defaults.guix = $('#pisarra')[0].getContext('2d');
         }
 
+        plugin.guardar_canvas = function(){
+            sessionStorage.setItem("pisarra", $('#pisarra'));
+        }
+
         plugin.asignar_mides_pisarra = function(){
             //via http://www.howtocreate.co.uk/tutorials/javascript/browserwindow
-            var myWidth = 0, myHeight = 0;
             if( typeof( window.innerWidth ) == 'number' ) {
                 //Non-IE
-                //myWidth = window.innerWidth;
-                myWidth = document.body.clientWidth;
-                //myHeight = window.innerHeight;
-                myHeight = document.body.clientHeight;
+                pisarra_X = window.innerWidth;
+                //pisarra_X = document.body.clientWidth;
+                pisarra_Y = window.innerHeight;
+                //pisarra_Y = document.body.clientHeight;
             } else if( document.documentElement && ( document.documentElement.clientWidth || document.documentElement.clientHeight ) ) {
                 //IE 6+ in 'standards compliant mode'
-                myWidth = document.documentElement.clientWidth;
-                myHeight = document.documentElement.clientHeight;
+                pisarra_X = document.documentElement.clientWidth;
+                pisarra_Y = document.documentElement.clientHeight;
             } else if( document.body && ( document.body.clientWidth || document.body.clientHeight ) ) {
                 //IE 4 compatible
-                myWidth = document.body.clientWidth;
-                myHeight = document.body.clientHeight;
+                pisarra_X = document.body.clientWidth;
+                pisarra_Y = document.body.clientHeight;
             }
 
-            alert(document.body.clientHeight);
-
             //asignem
-            $('#pisarra').attr('height', myHeight + 'px');
-            $('#pisarra').css('height', myHeight + 'px');
-            $('#pisarra').attr('width', myWidth + 'px');
-            $('#pisarra').css('width', myWidth + 'px');
+            $('#pisarra').attr('height', pisarra_Y + 'px');
+            $('#pisarra').css('height', pisarra_Y + 'px');
+            $('#pisarra').attr('width', pisarra_X + 'px');
+            $('#pisarra').css('width', pisarra_X + 'px');
         }
 
-        plugin.generar_color = function(){
-
-        }
-
-        plugin.print_line = function(){
+        plugin.print_line_click = function(){
             plugin.asignar_guix();
 
-            var color = plugin.generar_color();
-            //var pos_A = random();
-            //var pos_B = random();
+            var color = '#'+Math.floor(Math.random()*16777215).toString(16);
+            var pos_A = Math.random()*pisarra_X;
+            var pos_B = Math.random()*pisarra_Y;
+            var pos_C = Math.random()*pisarra_X;
+            var pos_D = Math.random()*pisarra_Y;
 
-            defaults.guix.moveTo(0,0);
-            defaults.guix.lineTo(300,150);
-            defaults.guix.strokeStyle = "#ff0000";
+            //calcular punta
+            var punta = parseInt(Math.random()*4);
+            if ( punta == 0 ){
+                var pos_A = 0;
+                var pos_B = 0;
+                var pos_C = Math.random()*pisarra_X;
+                var pos_D = Math.random()*pisarra_Y;
+            } else if ( punta == 1 ){
+                var pos_A = pisarra_X;
+                var pos_B = pisarra_Y;
+                var pos_C = Math.random()*pisarra_X;
+                var pos_D = Math.random()*pisarra_Y;
+            } else if ( punta == 2 ){
+                var pos_A = 0;
+                var pos_B = pisarra_Y;
+                var pos_C = Math.random()*pisarra_X;
+                var pos_D = Math.random()*pisarra_Y;
+            } else if (punta == 3){
+                var pos_A = pisarra_X;
+                var pos_B = 0;
+                var pos_C = Math.random()*pisarra_X;
+                var pos_D = Math.random()*pisarra_Y;
+            }
+
+
+            defaults.guix.beginPath();
+            defaults.guix.moveTo(pos_A,pos_B);
+            defaults.guix.lineTo(pos_C,pos_D);
+            defaults.guix.strokeStyle = color;
             defaults.guix.stroke();
         }
  
