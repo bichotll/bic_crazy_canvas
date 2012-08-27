@@ -9,7 +9,7 @@
         var defaults = {
  
             element_insert: 'body',
-            element_pisarra: $('<canvas id="pisarra" style="position: absolute; width: 100%; height: 100%"  >YES, IE SUCKS</canvas>'),
+            element_pisarra: $('<canvas id="pisarra" style="position: absolute;"  >YES, IE SUCKS</canvas>'),
             guix: null,
  
             // if your plugin is event-driven, you may provide
@@ -43,13 +43,26 @@
             // the plugin's final properties are the merged default
             // and user-provided options (if any)
             plugin.settings = $.extend({}, defaults, options)
- 
+
+            // code goes here
             plugin.insert_pisarra();
+
+            plugin.asignar_mides_pisarra();
 
             plugin.print_line();
 
-            // code goes here
-            alert('test');
+            //test event click pisarra
+            $('#pisarra').click( function(){
+                alert(0);
+            } );
+
+            //KO...
+            //event resize finestra
+            $('body').resize( function(){
+                alert('moviment');
+            } );
+
+            alert(true);
  
         }
  
@@ -68,17 +81,48 @@
             defaults.guix = $('#pisarra')[0].getContext('2d');
         }
 
+        plugin.asignar_mides_pisarra = function(){
+            //via http://www.howtocreate.co.uk/tutorials/javascript/browserwindow
+            var myWidth = 0, myHeight = 0;
+            if( typeof( window.innerWidth ) == 'number' ) {
+                //Non-IE
+                //myWidth = window.innerWidth;
+                myWidth = document.body.clientWidth;
+                //myHeight = window.innerHeight;
+                myHeight = document.body.clientHeight;
+            } else if( document.documentElement && ( document.documentElement.clientWidth || document.documentElement.clientHeight ) ) {
+                //IE 6+ in 'standards compliant mode'
+                myWidth = document.documentElement.clientWidth;
+                myHeight = document.documentElement.clientHeight;
+            } else if( document.body && ( document.body.clientWidth || document.body.clientHeight ) ) {
+                //IE 4 compatible
+                myWidth = document.body.clientWidth;
+                myHeight = document.body.clientHeight;
+            }
+
+            alert(document.body.clientHeight);
+
+            //asignem
+            $('#pisarra').attr('height', myHeight + 'px');
+            $('#pisarra').css('height', myHeight + 'px');
+            $('#pisarra').attr('width', myWidth + 'px');
+            $('#pisarra').css('width', myWidth + 'px');
+        }
+
+        plugin.generar_color = function(){
+
+        }
+
         plugin.print_line = function(){
             plugin.asignar_guix();
 
+            var color = plugin.generar_color();
+            //var pos_A = random();
+            //var pos_B = random();
+
             defaults.guix.moveTo(0,0);
             defaults.guix.lineTo(300,150);
-            defaults.guix.stroke();
-
-            defaults.guix.lineWidth = 20;
-            defaults.guix.beginPath();
-            defaults.guix.moveTo(5, 50);
-            defaults.guix.bezierCurveTo(30, 30, 130, 530, 200, 100);
+            defaults.guix.strokeStyle = "#ff0000";
             defaults.guix.stroke();
         }
  
